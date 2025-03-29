@@ -1,0 +1,7 @@
+Speed=500
+Power=1.2
+Latency=10
+Area=300
+Efficiency=85.7
+CMRR=10.0
+Offset=1.0

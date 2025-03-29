@@ -2,7 +2,7 @@
 trap "kill -- -$BASHPID" EXIT
 
 # Creating initial points
-for config in "random", "sobol", "lhs", "Partial_Context", "No_Context", "Full_Context"
+for config in "random" "sobol" "lhs" "Partial_Context" "No_Context" "Full_Context"
 do
     python3 exp_warmstarting/init_warmstart.py --config $config
     sleep 60

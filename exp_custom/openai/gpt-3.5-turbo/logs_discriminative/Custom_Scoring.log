@@ -1,0 +1,34 @@
+2025-03-29 06:56:12 - INFO - ================================================================================
+2025-03-29 06:56:12 - INFO - Executing LLAMBO (discriminative | openai | gpt-3.5-turbo | top_pct: None) to tune Custom_Scoring with seed 1 / 1...
+2025-03-29 06:56:12 - INFO - Task context: {'model': 'Custom_Scoring', 'task': 'regression', 'tot_feats': 0, 'cat_feats': 0, 'num_feats': 0, 'n_classes': 0, 'metric': 'accuracy', 'lower_is_better': False, 'num_samples': 0, 'hyperparameter_constraints': {'NoC_Width': ['int', 'linear', [1, 15]], 'L1CacheSize': ['int', 'linear', [2, 16]]}}
+2025-03-29 06:58:30 - INFO - [LLAMBO] Query cost: 0.1010
+2025-03-29 06:58:30 - INFO - [LLAMBO] Query time: 137.0149
+2025-03-29 06:58:30 - INFO -     NoC_Width  L1CacheSize  score
+0           1            2    1.7
+1           2            4    3.4
+2           3            8    6.5
+3           4           16   12.4
+4           5           16   12.7
+5           8           11   10.1
+6          12           15   14.1
+7          13           14   13.7
+8           7           14   11.9
+9          10           13   12.1
+10          9            7    7.6
+11         11           14   13.1
+12          9            8    8.3
+13         11           15   13.8
+14          8           13   11.5
+15          7           12   10.5
+16          8           15   12.9
+17          5           15   12.0
+18         14           12   12.6
+19         10           15   13.5
+20         12           14   13.4
+21          6           13   10.9
+22          6           14   11.6
+23          9           14   12.5
+24         11           13   12.4
+2025-03-29 06:58:30 - INFO - [LLAMBO] RUN COMPLETE, saved results to /home/docker/workspace/LLAMBO/exp_custom/openai/gpt-3.5-turbo/results_discriminative/Custom_Scoring...
+2025-03-29 06:58:30 - INFO - ================================================================================
+2025-03-29 06:58:30 - INFO - [LLAMBO] 1 evaluation runs complete! Total cost: $0.1010

@@ -1,0 +1,26 @@
+[
+    {
+        "NoC_Width": 1,
+        "L1CacheSize": 2
+    },
+    {
+        "NoC_Width": 2,
+        "L1CacheSize": 4
+    },
+    {
+        "NoC_Width": 3,
+        "L1CacheSize": 8
+    },
+    {
+        "NoC_Width": 4,
+        "L1CacheSize": 16
+    },
+    {
+        "NoC_Width": 5,
+        "L1CacheSize": 16
+    },
+    {
+        "NoC_Width": 6,
+        "L1CacheSize": 16
+    }
+]

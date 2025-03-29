@@ -1,0 +1,33 @@
+{
+    "all_cnets": [
+        "CASP",
+        "VO1M",
+        "CAS2P",
+        "VOM",
+        "VCMOP",
+        "TAIL1",
+        "VS",
+        "VS2",
+        "VCM",
+        "NBIAS_TAIL",
+        "PCAS",
+        "NCAS",
+        "net0108",
+        "VCMON2"
+    ],
+    "dir_prefix": "/Users/lab447-mac/Desktop/LLANA/data/OTA_XT_MAGICAL_CMRR/dummy_data_dir",
+    "obj": [
+        "CMRR",
+        "Offset"
+    ],
+    "gl": [
+        "max",
+        "min"
+    ],
+    "obj_val": [
+        80,
+        0.001
+    ],
+    "save_dir": "custom_dataset"
+}
+

@@ -1,0 +1,39 @@
+2025-02-22 15:49:49 - INFO - ================================================================================
+2025-02-22 15:49:49 - INFO - Executing LLAMBO (discriminative | ollama | mistral | top_pct: None) to tune RandomForest on Offset_score with seed 1 / 1...
+2025-02-22 15:49:49 - INFO - Task context: {'model': 'RandomForest', 'task': 'regression', 'tot_feats': 14, 'cat_feats': 0, 'num_feats': 14, 'n_classes': 4, 'metric': 'neg_mean_squared_error', 'lower_is_better': True, 'num_samples': 5, 'hyperparameter_constraints': {'max_depth': ['int', 'linear', [1, 15]], 'max_features': ['float', 'logit', [0.01, 0.99]], 'min_impurity_decrease': ['float', 'linear', [0.0, 0.5]], 'min_samples_leaf': ['float', 'logit', [0.01, 0.49]], 'min_samples_split': ['float', 'logit', [0.01, 0.99]], 'min_weight_fraction_leaf': ['float', 'logit', [0.01, 0.49]]}}
+2025-02-22 15:49:49 - INFO - ================================================================================
+2025-02-22 15:49:49 - INFO - [Search settings]: 
+	n_candidates: 10, n_templates: 2, n_gens: 10, 
+	alpha: 0.1, n_initial_samples: 5, n_trials: 10, 
+	using warping: False, ablation: None, shuffle_features: False
+2025-02-22 15:49:49 - INFO - [Task]: 
+	task type: regression, sm: discriminative, lower is better: True
+2025-02-22 15:49:49 - INFO - Hyperparameter search space: 
+2025-02-22 15:49:49 - INFO - ================================================================================
+2025-02-22 15:49:49 - INFO - Adjusted alpha: 0.1 | [original alpha: 0.1], desired fval: 1.503077
+2025-02-22 15:49:49 - INFO - ====================================================================================================
+2025-02-22 15:49:49 - INFO - EXAMPLE ACQUISITION PROMPT
+2025-02-22 15:49:49 - INFO - Length of prompt templates: 2
+2025-02-22 15:49:49 - INFO - Length of query templates: 2
+2025-02-22 15:49:49 - INFO - The following are examples of performance of a RandomForest measured in mean squared error and the corresponding model hyperparameter configurations. The model is evaluated on a tabular regression task. The tabular dataset contains 5 samples and 14 features (0 categorical, 14 numerical). The allowable ranges for the hyperparameters are:
+- max_depth: [1, 15] (int)
+- max_features: [0.01, 0.99] (float, precise to 2 decimals)
+- min_impurity_decrease: [0, 0] (float, precise to 0 decimals)
+- min_samples_leaf: [0.01, 0.49] (float, precise to 2 decimals)
+- min_samples_split: [0.01, 0.99] (float, precise to 2 decimals)
+- min_weight_fraction_leaf: [0.01, 0.49] (float, precise to 2 decimals)
+Recommend a configuration that can achieve the target performance of 1.503077. Do not recommend values at the minimum or maximum of allowable range, do not recommend rounded values. Recommend values with highest possible precision, as requested by the allowed ranges. Your response must only contain the predicted configuration, in the format ## configuration ##.
+
+Performance: 1.631006
+Hyperparameter configuration: ## max_depth: 9, max_features: 0.70, min_impurity_decrease: 0, min_samples_leaf: 0.01, min_samples_split: 0.01, min_weight_fraction_leaf: 0.26 ##
+Performance: 2.017610
+Hyperparameter configuration: ## max_depth: 9, max_features: 0.27, min_impurity_decrease: 0, min_samples_leaf: 0.08, min_samples_split: 0.07, min_weight_fraction_leaf: 0.12 ##
+Performance: 1.598899
+Hyperparameter configuration: ## max_depth: 7, max_features: 0.60, min_impurity_decrease: 0, min_samples_leaf: 0.04, min_samples_split: 0.38, min_weight_fraction_leaf: 0.08 ##
+Performance: 1.598899
+Hyperparameter configuration: ## max_depth: 12, max_features: 0.54, min_impurity_decrease: 0, min_samples_leaf: 0.22, min_samples_split: 0.08, min_weight_fraction_leaf: 0.21 ##
+Performance: 1.549852
+Hyperparameter configuration: ## max_depth: 3, max_features: 0.19, min_impurity_decrease: 0, min_samples_leaf: 0.40, min_samples_split: 0.11, min_weight_fraction_leaf: 0.05 ##
+Performance: 1.503077
+Hyperparameter configuration:
+2025-02-22 15:49:49 - INFO - ====================================================================================================

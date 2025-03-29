@@ -5,16 +5,19 @@ import asyncio
 import re
 import numpy as np
 from scipy.stats import norm
+import aiohttp
+import httpx
+from openai import AsyncOpenAI
 from aiohttp import ClientSession
 from llambo.rate_limiter import RateLimiter
 from llambo.discriminative_sm_utils import gen_prompt_tempates
 
-
+'''
 openai.api_type = os.environ["OPENAI_API_TYPE"]
 openai.api_version = os.environ["OPENAI_API_VERSION"]
 openai.api_base = os.environ["OPENAI_API_BASE"]
 openai.api_key = os.environ["OPENAI_API_KEY"]
-
+'''
 
 class LLM_DIS_SM:
     def __init__(self, task_context, n_gens, lower_is_better, 
@@ -49,7 +52,6 @@ class LLM_DIS_SM:
 
         assert type(self.shuffle_features) == bool, 'shuffle_features must be a boolean'
 
-
     async def _async_generate(self, few_shot_template, query_example, query_idx):
         '''Generate a response from the LLM async.'''
         message = []
@@ -57,10 +59,57 @@ class LLM_DIS_SM:
         user_message = few_shot_template.format(Q=query_example['Q'])
         message.append({"role": "user", "content": user_message})
 
-        MAX_RETRIES = 3
+        MAX_RETRIES = 5
+        URL = os.environ["OPENAI_API_BASE"]
+        API_KEY = os.environ["OPENAI_API_KEY"]
+        async with httpx.AsyncClient(timeout=10) as client:
+            resp = None
+            n_preds = int(self.n_gens / self.n_templates) if self.bootstrapping else int(self.n_gens)
+            print(f"[SM_DIS] Discriminative query {query_idx} with model {self.chat_engine}")
+            for retry in range(MAX_RETRIES):
+                try:
+                    start_time = time.time()
+                    self.rate_limiter.add_request(request_text=user_message, current_time=start_time)
 
-        async with ClientSession(trust_env=True) as session:
-            openai.aiosession.set(session)
+                    response = await client.post(
+                        URL,
+                        headers={"accept": "application/json",
+                                 "Authorization": f"Bearer {API_KEY}", 
+                                 "Content-Type": "application/json"},
+                        json={
+                            "model": self.chat_engine,
+                            "messages": message,
+                            "temperature": 0.7,
+                            "max_tokens": 8,
+                            "top_p": 0.95,
+                            #"n": max(n_preds, 3),
+                           # "timeout": 10,
+                        }
+                    )
+
+                    resp = response.json()
+                    self.rate_limiter.add_request(request_token_count=resp["usage"]["total_tokens"], current_time=start_time)
+                    break  # Exit loop on success
+                except Exception as e:
+                    print(f'[SM_DIS] query {query_idx} RETRYING LLM REQUEST {retry+1}/{MAX_RETRIES}...')
+                    print(resp)
+                    print(e)
+                    time.sleep(10)
+
+            if resp is None:
+                return None  # ❌ No valid response, return None
+
+        # ✅ Calculate token usage and cost
+            tot_tokens = resp["usage"]["total_tokens"]
+            tot_cost = (
+                0.0015 * (resp["usage"]["prompt_tokens"] / 1000) +
+                0.002 * (resp["usage"]["completion_tokens"] / 1000)
+            )
+
+            return query_idx, resp, tot_cost, tot_tokens
+        '''
+        async with aiohttp.ClientSession(trust_env=True) as session:
+            async_client = AsyncOpenAI()
 
             resp = None
             n_preds = int(self.n_gens/self.n_templates) if self.bootstrapping else int(self.n_gens)
@@ -68,35 +117,36 @@ class LLM_DIS_SM:
                 try:
                     start_time = time.time()
                     self.rate_limiter.add_request(request_text=user_message, current_time=start_time)
-                    resp = await openai.ChatCompletion.acreate(
-                        engine=self.chat_engine,
+
+                    resp = await async_client.chat.completions.create(
+                        model=self.chat_engine,  # Use 'model' instead of 'engine' in v1.0+
                         messages=message,
-                        temperature=0.7,
-                        max_tokens=8,
+                        temperature=0.8,
+                        max_tokens=500,
                         top_p=0.95,
                         n=max(n_preds, 3),            # e.g. for 5 templates, get 2 generations per template
-                        request_timeout=10
+                        timeout=10
                     )
-                    self.rate_limiter.add_request(request_token_count=resp['usage']['total_tokens'], current_time=time.time())
-                    break
+
+                    self.rate_limiter.add_request(request_token_count=resp.usage.total_tokens, current_time=start_time)
+                    break  # Exit loop on success
                 except Exception as e:
                     print(f'[SM] RETRYING LLM REQUEST {retry+1}/{MAX_RETRIES}...')
                     print(resp)
-                    if retry == MAX_RETRIES-1:
-                        await openai.aiosession.get().close()
-                        raise e
-                    pass
-
-        await openai.aiosession.get().close()
-
+                    print(e)
+            
         if resp is None:
-            return None
+            return None  # ❌ No valid response, return None
 
-        tot_tokens = resp['usage']['total_tokens']
-        tot_cost = 0.0015*(resp['usage']['prompt_tokens']/1000) + 0.002*(resp['usage']['completion_tokens']/1000)
+        # ✅ Calculate token usage and cost
+        tot_tokens = resp.usage.total_tokens
+        tot_cost = (
+            0.0015 * (resp.usage.prompt_tokens / 1000) +
+            0.002 * (resp.usage.completion_tokens / 1000)
+        )
 
         return query_idx, resp, tot_cost, tot_tokens
-
+        '''
 
 
     async def _generate_concurrently(self, few_shot_templates, query_examples):
@@ -140,8 +190,9 @@ class LLM_DIS_SM:
                     sample_preds = [np.nan] * self.n_gens
                 else:
                     sample_preds = []
-                    all_gens_text = [x['message']['content'] for template_response in sample_response for x in template_response[0]['choices'] ]        # fuarr this is some high level programming
+                    all_gens_text = [x['message']['content'] for template_response in sample_response for x in template_response[0]['choices']]        # fuarr this is some high level programming
                     for gen_text in all_gens_text:
+                        print(f"gen_text is {gen_text}")
                         gen_pred = re.findall(r"## (-?[\d.]+) ##", gen_text)
                         if len(gen_pred) == 1:
                             sample_preds.append(float(gen_pred[0]))
@@ -159,7 +210,7 @@ class LLM_DIS_SM:
         time_taken = end - start
 
         success_rate = sum(bool_pred_returned)/len(bool_pred_returned)
-
+        print(f"all_preds {all_preds} type {type(all_preds)}")
         all_preds = np.array(all_preds).astype(float)
         y_mean = np.nanmean(all_preds, axis=1)
         y_std = np.nanstd(all_preds, axis=1)
@@ -241,7 +292,14 @@ class LLM_DIS_SM:
             observed_configs = self.warping_transformer.warp(observed_configs)
             candidate_configs = self.warping_transformer.warp(candidate_configs)
 
-        y_mean, y_std, cost, time_taken = asyncio.run(self._evaluate_candidate_points(observed_configs, observed_fvals, candidate_configs))
+        #y_mean, y_std, cost, time_taken = asyncio.run(self._evaluate_candidate_points(observed_configs, observed_fvals, candidate_configs))
+        try:
+            loop = asyncio.get_event_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+
+        y_mean, y_std, cost, time_taken = loop.run_until_complete(self._evaluate_candidate_points(observed_configs, observed_fvals, candidate_configs))
         if self.lower_is_better:
             best_fval = np.min(observed_fvals.to_numpy())
             delta = -1*(y_mean - best_fval)

@@ -4,7 +4,7 @@
 #!/bin/bash
 trap "kill -- -$BASHPID" EXIT
 
-ENGINE="gpt35turbo_20230727"
+ENGINE="gpt-3.5-turbo"
 
 for dataset in "australian" "blood_transfusion" "car" "credit_g" "kc1" "phoneme" "segment" "vehicle"
 do

@@ -183,7 +183,8 @@ MODELS_REG = {
 
 def seed_everything():
     seed = 0
-    import random, os
+    import random
+    import os
     import numpy as np
     import torch
     

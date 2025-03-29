@@ -1,0 +1,12 @@
+2025-02-22 15:40:39 - INFO - ================================================================================
+2025-02-22 15:40:39 - INFO - Executing LLAMBO (discriminative | ollama | mistral | top_pct: None) to tune SVM on Offset_score with seed 1 / 1...
+2025-02-22 15:40:39 - INFO - Task context: {'model': 'SVM', 'task': 'regression', 'tot_feats': 14, 'cat_feats': 0, 'num_feats': 14, 'n_classes': 4, 'metric': 'neg_mean_squared_error', 'lower_is_better': True, 'num_samples': 5, 'hyperparameter_constraints': {'C': ['float', 'log', [1, 1000.0]], 'gamma': ['float', 'log', [0.0001, 0.001]], 'tol': ['float', 'log', [1e-05, 0.1]]}}
+2025-02-22 15:40:39 - INFO - ================================================================================
+2025-02-22 15:40:39 - INFO - [Search settings]: 
+	n_candidates: 10, n_templates: 2, n_gens: 10, 
+	alpha: 0.1, n_initial_samples: 5, n_trials: 10, 
+	using warping: False, ablation: None, shuffle_features: False
+2025-02-22 15:40:39 - INFO - [Task]: 
+	task type: regression, sm: discriminative, lower is better: True
+2025-02-22 15:40:39 - INFO - Hyperparameter search space: 
+2025-02-22 15:40:39 - INFO - ================================================================================

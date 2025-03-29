@@ -6,16 +6,19 @@ import openai
 import asyncio
 import numpy as np
 import pandas as pd
+import aiohttp
+import httpx
+from openai import AsyncOpenAI
 from aiohttp import ClientSession
 from langchain import FewShotPromptTemplate
 from langchain import PromptTemplate
 from llambo.rate_limiter import RateLimiter
-
+'''
 openai.api_type = os.environ["OPENAI_API_TYPE"]
 openai.api_version = os.environ["OPENAI_API_VERSION"]
 openai.api_base = os.environ["OPENAI_API_BASE"]
 openai.api_key = os.environ["OPENAI_API_KEY"]
-
+'''
 
 class LLM_ACQ:
     def __init__(self, task_context, n_candidates, n_templates, lower_is_better, 
@@ -266,7 +269,8 @@ Hyperparameter configuration: {Q}"""
             suffix = """
 Performance: {A}
 Hyperparameter configuration:"""
-
+            print("==================EXAMPLE_PROMPT==========================")
+            print(example_prompt)
             few_shot_prompt = FewShotPromptTemplate(
                 examples=few_shot_examples,
                 example_prompt=example_prompt,
@@ -288,42 +292,54 @@ Hyperparameter configuration:"""
         message.append({"role": "system","content": "You are an AI assistant that helps people find information."})
         message.append({"role": "user", "content": user_message})
 
-        MAX_RETRIES = 3
-
-        async with ClientSession(trust_env=True) as session:
-            openai.aiosession.set(session)
-
+        MAX_RETRIES = 5
+        URL = os.environ["OPENAI_API_BASE"]
+        API_KEY = os.environ["OPENAI_API_KEY"]
+        async with httpx.AsyncClient(timeout=10) as client:
             resp = None
+
+            print(f"[AF] Acquisition with model {self.chat_engine}")
             for retry in range(MAX_RETRIES):
                 try:
                     start_time = time.time()
                     self.rate_limiter.add_request(request_text=user_message, current_time=start_time)
-                    resp = await openai.ChatCompletion.acreate(
-                        engine=self.chat_engine,
-                        messages=message,
-                        temperature=0.8,
-                        max_tokens=500,
-                        top_p=0.95,
-                        n=self.n_gens,
-                        request_timeout=10
+
+                    response = await client.post(
+                        URL,
+                        headers={"accept": "application/json",
+                                 "Authorization": f"Bearer {API_KEY}", 
+                                 "Content-Type": "application/json"},
+                        json={
+                            "model": self.chat_engine,
+                            "messages": message,
+                            "temperature": 0.8,
+                            "max_tokens": 500,
+                            "top_p": 0.95,
+                            #"n": self.n_gens,
+                            #"timeout": 20,
+                        }
                     )
-                    self.rate_limiter.add_request(request_token_count=resp['usage']['total_tokens'], current_time=start_time)
-                    break
+
+                    resp = response.json()
+                    self.rate_limiter.add_request(request_token_count=resp["usage"]["total_tokens"], current_time=start_time)
+                    break  # Exit loop on success
                 except Exception as e:
                     print(f'[AF] RETRYING LLM REQUEST {retry+1}/{MAX_RETRIES}...')
                     print(resp)
                     print(e)
-
-        await openai.aiosession.get().close()
+                    time.sleep(10)
 
         if resp is None:
-            return None
+            return None  # ❌ No valid response, return None
 
-        tot_tokens = resp['usage']['total_tokens']
-        tot_cost = 0.0015*(resp['usage']['prompt_tokens']/1000) + 0.002*(resp['usage']['completion_tokens']/1000)
-
+            # ✅ Calculate token usage and cost
+        tot_tokens = resp["usage"]["total_tokens"]
+        tot_cost = (
+             0.0015 * (resp["usage"]["prompt_tokens"] / 1000) +
+             0.002 * (resp["usage"]["completion_tokens"] / 1000)
+         )
+        
         return resp, tot_cost, tot_tokens
-
 
     async def _async_generate_concurrently(self, prompt_templates, query_templates):
         '''Perform concurrent generation of responses from the LLM async.'''
@@ -449,7 +465,7 @@ Hyperparameter configuration:"""
             self.observed_worst = np.min(observed_fvals.values)
             desired_fval = self.observed_best + alpha*range
 
-            while desired_fval >= .9999:  # accuracy can't be greater than 1
+            while desired_fval >= 100.9999:  # accuracy can't be greater than 1 #TODO modify the limit
                 for alpha_ in alpha_range:
                     if alpha_ < alpha:
                         alpha = alpha_  # new alpha
@@ -477,15 +493,24 @@ Hyperparameter configuration:"""
 
         retry = 0
         while number_candidate_points < 5:
-            llm_responses = asyncio.run(self._async_generate_concurrently(prompt_templates, query_templates))
+
+            try:
+                loop = asyncio.get_event_loop()
+            except RuntimeError:
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+            llm_responses = loop.run_until_complete(self._async_generate_concurrently(prompt_templates, query_templates))
 
             candidate_points = []
             tot_cost = 0
             tot_tokens = 0
             # loop through n_coroutine async calls
+            #print(llm_responses)
             for response in llm_responses:
                 if response is None:
                     continue
+ #               print(type(response))
+#                print(response)
                 # loop through n_gen responses
                 for response_message in response[0]['choices']:
                         response_content = response_message['message']['content']
@@ -511,7 +536,8 @@ Hyperparameter configuration:"""
                 print(f'Desired fval: {desired_fval:.6f}')
                 print(f'Number of proposed candidate points: {len(candidate_points)}')
                 print(f'Number of accepted candidate points: {filtered_candidate_points.shape[0]}')
-                if len(candidate_points) > 5:
+                #if len(candidate_points) > 5:
+                if len(candidate_points) > 0:
                     filtered_candidate_points = pd.DataFrame(candidate_points)
                     break
                 else:

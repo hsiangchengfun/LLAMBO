@@ -125,7 +125,7 @@ ALL_TEMPLATES_PATH = {
 }
 
 class FullTemplate(TemplateReader):
-    def __init__(self, context = '', provide_ranges = True, add_name = None):
+    def __init__(self, context = 'fjiowefiog', provide_ranges = True, add_name = None):
         self.context_template = context
         #self.add_path = 
         super().__init__(ALL_TEMPLATES_PATH[self.context_template])

@@ -1,0 +1,26 @@
+2025-03-23 21:44:18 - INFO - ================================================================================
+2025-03-23 21:44:18 - INFO - Executing LLAMBO (discriminative | ollama | llama3.1:8b-instruct-q8_0 | top_pct: None) to tune RandomForest on digits with seed 1 / 1...
+2025-03-23 21:44:18 - INFO - Task context: {'model': 'RandomForest', 'task': 'classification', 'tot_feats': 64, 'cat_feats': 0, 'num_feats': 64, 'n_classes': 10, 'metric': 'accuracy', 'lower_is_better': False, 'num_samples': 1437, 'hyperparameter_constraints': {'max_depth': ['int', 'linear', [1, 15]], 'max_features': ['float', 'logit', [0.01, 0.99]], 'min_impurity_decrease': ['float', 'linear', [0.0, 0.5]], 'min_samples_leaf': ['float', 'logit', [0.01, 0.49]], 'min_samples_split': ['float', 'logit', [0.01, 0.99]], 'min_weight_fraction_leaf': ['float', 'logit', [0.01, 0.49]]}}
+2025-03-23 21:50:32 - INFO - [LLAMBO] Query cost: 0.0741
+2025-03-23 21:50:32 - INFO - [LLAMBO] Query time: 372.4046
+2025-03-23 21:50:32 - INFO -     max_depth  max_features  ...     score  generalization_score
+0           9      0.267459  ...  0.105776              0.080556
+1           7      0.602079  ...  0.105776              0.080556
+2           9      0.703320  ...  0.650663              0.597222
+3          12      0.544787  ...  0.105776              0.080556
+4           3      0.189256  ...  0.105776              0.080556
+5          12      0.720000  ...  0.379292              0.475000
+6          12      0.750000  ...  0.105776              0.080556
+7           8      0.430000  ...  0.488468              0.355556
+8          12      0.740000  ...  0.105776              0.080556
+9           9      0.710000  ...  0.526786              0.425000
+10         12      0.540000  ...  0.439820              0.436111
+11         12      0.720000  ...  0.379292              0.475000
+12         12      0.540000  ...  0.439820              0.436111
+13         12      0.540000  ...  0.439820              0.436111
+14          9      0.710000  ...  0.546281              0.405556
+
+[15 rows x 8 columns]
+2025-03-23 21:50:32 - INFO - [LLAMBO] RUN COMPLETE, saved results to /home/anonymouself/tmp/llambo/exp_custom/ollama/llama3.1:8b-instruct-q8_0/results_discriminative/digits/RandomForest...
+2025-03-23 21:50:32 - INFO - ================================================================================
+2025-03-23 21:50:32 - INFO - [LLAMBO] 1 evaluation runs complete! Total cost: $0.0741

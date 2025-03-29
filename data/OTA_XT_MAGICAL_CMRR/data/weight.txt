@@ -1,0 +1,5 @@
+CMRR 12.5
+Gain 45.8
+Offset 3.2
+THD 0.005
+SNR 98.2

@@ -147,12 +147,12 @@ class LLAMBO:
 
         if self.lower_is_better:
             self.best_fval = self.observed_fvals['score'].min()
-            best_gen_fval = self.observed_fvals[test_metric].min()
+            # best_gen_fval = self.observed_fvals[test_metric].min()
         else:
             self.best_fval = self.observed_fvals['score'].max()
-            best_gen_fval = self.observed_fvals[test_metric].max()
+            # best_gen_fval = self.observed_fvals[test_metric].max()
 
-        print(f'[Initialization] COMPLETED: best fval: {self.best_fval:.4f}, best generalization fval: {best_gen_fval:.4f}')
+        print(f'[Initialization] COMPLETED: best fval: {self.best_fval:.4f} ')#, best generalization fval: {best_gen_fval:.4f}')
         print('='*150)
 
         # optimization loop
@@ -203,7 +203,7 @@ class LLAMBO:
             time_taken = end_time - start_time
 
             current_fval_cv = sel_candidate_fval['score'].values[0]
-            current_fval_gen = sel_candidate_fval[test_metric].values[0]
+            # current_fval_gen = sel_candidate_fval[test_metric].values[0]
 
             if self.lower_is_better:
                 if current_fval_cv < self.best_fval:
@@ -219,10 +219,13 @@ class LLAMBO:
                     best_found = False
 
             if best_found:
-                print(f'[Trial {trial_id} completed, time taken: {time_taken:.2f}s] best fval (cv): {self.best_fval:.4f}, current fval (cv): {current_fval_cv:.4f}. Generalization fval: {current_fval_gen:.4f} NEW BEST FVAL FOUND!!')
+                print(f'[Trial {trial_id} completed, time taken: {time_taken:.2f}s] best fval (cv): {self.best_fval:.4f}, current fval (cv): {current_fval_cv:.4f}. NEW BEST FVAL FOUND!!')
+                # print(f'[Trial {trial_id} completed, time taken: {time_taken:.2f}s] best fval (cv): {self.best_fval:.4f}, current fval (cv): {current_fval_cv:.4f}. Generalization fval: {current_fval_gen:.4f} NEW BEST FVAL FOUND!!')
             else: 
-                print(f'[Trial {trial_id} completed, time taken: {time_taken:.2f}s] best fval (cv): {self.best_fval:.4f}, current fval (cv): {current_fval_cv:.4f}. Generalization fval: {current_fval_gen:.4f}.')
+                print(f'[Trial {trial_id} completed, time taken: {time_taken:.2f}s] best fval (cv): {self.best_fval:.4f}, current fval (cv): {current_fval_cv:.4f}.')# Generalization fval: {current_fval_gen:.4f}.')
             print('='*150)
+
+            print(f"The best are {self.observed_configs} and {self.observed_fvals}")
 
         # returns history of observed configurations and function values
         return self.observed_configs, self.observed_fvals

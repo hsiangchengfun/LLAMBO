@@ -191,11 +191,12 @@ if __name__ == '__main__':
         benchmark = BayesmarkExpRunner(task_context, data, seed)
 
         # instantiate LLAMBO
-        llambo = LLAMBO(task_context, sm_mode, n_candidates=10, n_templates=2, n_gens=10, 
-                        alpha=0.1, n_initial_samples=5, n_trials=25, init_f=benchmark.generate_initialization,
+        llambo = LLAMBO(task_context, sm_mode, n_candidates=10, n_templates=2, n_gens=1, 
+                        alpha=0.1, n_initial_samples=5, n_trials=20, init_f=benchmark.generate_initialization,
                         bbox_eval_f=benchmark.evaluate_point, chat_engine=chat_engine, top_pct=top_pct)
         llambo.seed = seed
         configs, fvals = llambo.optimize()
+        print(f"Get configs and fvals {configs} and {fvals}")
 
 
         logger.info(f'[LLAMBO] Query cost: {sum(llambo.llm_query_cost):.4f}')

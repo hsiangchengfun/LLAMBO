@@ -1,0 +1,6 @@
+{
+    "Custom_Scoring": {
+        "NoC_Width": ["int", "linear", [1, 15]],
+        "L1CacheSize": ["int", "linear", [2, 16]]
+    }
+}

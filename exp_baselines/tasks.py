@@ -31,7 +31,8 @@ def save_pickle_dict(this_dict, path, name_file):
 # Function to set the seed for various libraries
 def seed_everything():
     seed = RANDOM_STATE
-    import random, os
+    import random
+    import os
     import numpy as np
     import torch
     
